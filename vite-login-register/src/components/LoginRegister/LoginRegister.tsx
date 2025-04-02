@@ -197,31 +197,47 @@ const LoginRegister: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log('Login attempt with:', formData); // Debug log
+      
       const res = await login({
         email: formData.email,
         password: formData.password
       });
-      const { token } = res.data;
-      localStorage.setItem('token', token);
-      navigate('/admin', { replace: true });
-
-      toast.success('Login successful!', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+  
+      console.log('Login response:', res); // Debug log
+      
+      if (res?.success && res?.token) {
+        localStorage.setItem('token', res.token);
+        if (res.user) {
+          localStorage.setItem('user', JSON.stringify(res.user));
+        }
+        
+        // Add this debug before navigation
+        console.log('Login successful, navigating...');
+        
+        navigate('/admin', { replace: true });
+        
+        // Add this debug after navigation
+        console.log('Navigation complete, showing toast...');
+        
+        toast.success('Login successful!', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        
+        console.log('Toast should be visible now');
+      } else {
+        throw new Error(res?.message || 'Login failed');
+      }
     } catch (error: any) {
-      console.error('Login failed:', error.response?.data || error.message);
-      toast.error(error.response?.data?.message || 'Login failed. Please check your credentials.', {
+      console.error('Login error:', error);
+      toast.error(error.message || 'Login failed', {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
       });
     }
   };
@@ -230,36 +246,26 @@ const LoginRegister: React.FC = () => {
     e.preventDefault();
     try {
       const res = await register(formData);
-      if (res.data && res.data.token) {
-        localStorage.setItem('token', res.data.token);
-        toast.success('Registration successful!', {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+      
+      if (res.success && res.token && res.user) {
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify(res.user));
+        
+        toast.success('Registration successful!');
+        setIsRegisterMode(false);
         setFormData({
           username: '',
           email: '',
           phoneNumber: '',
           password: '',
         });
-        setIsRegisterMode(false);
       } else {
-        throw new Error('Token not found in response');
+        throw new Error(res.message || 'Registration failed');
       }
     } catch (error: any) {
-      console.error('Registration failed:', error.response?.data || error.message);
-      toast.error(error.response?.data?.message || 'Registration failed. Please try again.', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      console.error('Registration error:', error);
+      const errorMsg = error.errors?.[0]?.msg || error.message || 'Registration failed';
+      toast.error(errorMsg);
     }
   };
 
