@@ -12,7 +12,7 @@
 .wrapper {
     position: relative;
     width: 420px;
-    height: 450px;
+    height: 500px;
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     backdrop-filter: blur(30px);
@@ -32,7 +32,6 @@
 .form-box {
     width: 100%;
     padding: 40px;
-    height: auto;
 }
 .form-box h1{
     margin-top: 30px;
@@ -91,6 +90,9 @@
     translate: 0 -50%;
     font-size: 16px;
 }
+.google{
+    font-size: 25px;
+}
 
 form h1 {
     font-size: 36px;
@@ -112,7 +114,11 @@ form button {
     transition: all 0.3s ease;
     margin: 10px 0;
 }
-
+form button.link--button{
+    margin: 0;
+    box-shadow: none;
+    border: none;
+}
 form button:hover {
     transform: scale(1.05);
 }
@@ -147,19 +153,22 @@ form button:hover {
     margin: 0;
 }
 
-.link-button {
-    background: none;
-    border: none;
+.link-button ,
+form button.link--button{
     color: inherit;
     font-weight: 600;
     cursor: pointer;
-    padding: 0;
-    text-decoration: underline;
-    transition: color 0.3s ease;
+    text-decoration: none;
+    transition: ease 0.9s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5%;
 }
 
-.link-button:hover {
-    text-decoration: none;
+.link-button:hover ,
+form button.link--button:hover{
+    text-decoration: underline;
     color: #4cceac;
 }
 

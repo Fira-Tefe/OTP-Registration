@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FaUser, FaLock, FaEnvelope, FaRegMoon } from 'react-icons/fa';
+import { FaUser, FaLock, FaEnvelope, FaRegMoon, FaPhone } from 'react-icons/fa';
+import { FcGoogle } from "react-icons/fc";
 import { MdOutlineLanguage } from "react-icons/md";
 import { TiWeatherSunny } from "react-icons/ti";
 import { login, register } from './api'; 
@@ -11,9 +12,9 @@ import { tokens } from './theme';
 
 // Type definitions
 interface FormData {
-  fullName: string;
   username: string;
   email: string;
+  phoneNumber: string;
   password: string;
 }
 
@@ -22,13 +23,14 @@ interface TranslationKeys {
   register: string;
   username: string;
   password: string;
-  fullName: string;
   email: string;
+  phoneNumber: string;
   rememberMe: string;
   forgotPassword: string;
   terms: string;
   haveAccount: string;
   noAccount: string;
+  continueWithGoogle: string;
 }
 
 interface Translations {
@@ -57,52 +59,56 @@ const translations: Translations = {
     register: "Register",
     username: "Username",
     password: "Password",
-    fullName: "Full Name",
     email: "Email",
+    phoneNumber: "Phone Number",
     rememberMe: "Remember me",
     forgotPassword: "Forgot Password",
     terms: "I agree to the terms & conditions",
     haveAccount: "Already have an account?",
-    noAccount: "Don't have an account?"
+    noAccount: "Don't have an account?",
+    continueWithGoogle: "Continue with Google"
   },
   am: {
     login: "ግባ",
     register: "ክፈት",
     username: "የተጠቃሚ ስም",
     password: "የይለፍ ቃል",
-    fullName: "ሙሉ ስም",
     email: "ኢሜይል",
+    phoneNumber: "ስልክ ቁጥር",
     rememberMe: "አስታውሰኝ",
     forgotPassword: "የይለፍ ቃል ረሳኽው?",
     terms: "ከውሎች ጋር ተስማምቻለሁ",
     haveAccount: "ቀድሞ መለያ አለህ?",
-    noAccount: "መለያ የሎትም?"
+    noAccount: "መለያ የሎትም?",
+    continueWithGoogle: "በGoogle ይቀጥሉ"
   },
   om: {
     login: "Seeni",
     register: "Galmeessuu",
     username: "Maqaa Fayyadamaa",
     password: "Jecha Darbii",
-    fullName: "Maqaa Guutuu",
     email: "Imeelii",
+    phoneNumber: "Lakkoofsa Bilbila",
     rememberMe: "Na Yaadadhu",
     forgotPassword: "Jecha Darbii Dagadhe?",
     terms: "Sharii fi haala waliin walii galle",
     haveAccount: "Akkaawuntii hordoftanii?",
-    noAccount: "Akkaawuntii hin qabduu?"
+    noAccount: "Akkaawuntii hin qabduu?",
+    continueWithGoogle: "Google waliin itti fufu"
   },
   ti: {
     login: "እተው",
     register: "ተመዝገብ",
     username: "ስም ተጠቃሚ",
     password: "መሕለፊ ቃል",
-    fullName: "ሓላፍ ስም",
     email: "ኢመይል",
+    phoneNumber: "ቁጽሪ ስልኪ",
     rememberMe: "ዘክርኒ",
     forgotPassword: "መሕለፊ ቃል ረሲዕካ?",
     terms: "ምስ ውዕላት ተሰማሚዐ",
     haveAccount: "ድሮ መለያ ኣለካ?",
-    noAccount: "መለያ የብልካን?"
+    noAccount: "መለያ የብልካን?",
+    continueWithGoogle: "ብGoogle ቀፀል"
   }
 };
 
@@ -160,9 +166,9 @@ const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
 
 const LoginRegister: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
-    fullName: '',
     username: '',
     email: '',
+    phoneNumber: '',
     password: '',
   });
   const [isNightMode, setIsNightMode] = useState(false);
@@ -192,7 +198,7 @@ const LoginRegister: React.FC = () => {
     e.preventDefault();
     try {
       const res = await login({
-        username: formData.username,
+        email: formData.email,
         password: formData.password
       });
       const { token } = res.data;
@@ -235,9 +241,9 @@ const LoginRegister: React.FC = () => {
           draggable: true,
         });
         setFormData({
-          fullName: '',
           username: '',
           email: '',
+          phoneNumber: '',
           password: '',
         });
         setIsRegisterMode(false);
@@ -320,15 +326,15 @@ const LoginRegister: React.FC = () => {
             <h1>{translations[language].login}</h1>
             <div className={styles['input-box']}>
               <input
-                type="text"
-                placeholder={translations[language].username}
-                name="username"
-                value={formData.username}
+                type="email"
+                placeholder={translations[language].email}
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 required
                 style={{ color: colors.grey[100], border: `1px solid ${colors.grey[100]}` }}
               />
-              <FaUser className={styles.icon} style={{ color: colors.grey[100] }} />
+              <FaEnvelope className={styles.icon} style={{ color: colors.grey[100] }} />
             </div>
             <div className={styles['input-box']}>
               <input
@@ -353,15 +359,26 @@ const LoginRegister: React.FC = () => {
                 {translations[language].forgotPassword}
               </span>
             </div>
-            <button type="submit" style={{ color: colors.grey[100], border: `1px solid ${colors.grey[100]}` }}>
+            <button 
+               type="submit" 
+               className={styles['link-button']} 
+               >
               {translations[language].login}
             </button>
-            <div className={styles['register-link']}>
-              <p>
-                {translations[language].noAccount}{' '}
+            <div className={styles['google-link']}>
                 <button 
                   type="button" 
                   className={styles['link-button']} 
+                >
+                  <FcGoogle className={styles.google}/>{translations[language].continueWithGoogle}
+                </button>
+            </div>
+            <div className={styles['register-link']}>
+              <p>
+                {translations[language].noAccount}{' '}
+                <button
+                  type="button" 
+                  className={styles['link--button'] } 
                   onClick={() => setIsRegisterMode(true)}
                 >
                   {translations[language].register}
@@ -375,18 +392,6 @@ const LoginRegister: React.FC = () => {
         <div className={`${styles['form-box']} ${styles.register}`}>
           <form onSubmit={handleRegister}>
             <h1>{translations[language].register}</h1>
-            <div className={styles['input-box']}>
-              <input
-                type="text"
-                placeholder={translations[language].fullName}
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                required
-                style={{ color: colors.grey[100], border: `1px solid ${colors.grey[100]}` }}
-              />
-              <FaUser className={styles.icon} style={{ color: colors.grey[100] }} />
-            </div>
             <div className={styles['input-box']}>
               <input
                 type="text"
@@ -413,6 +418,18 @@ const LoginRegister: React.FC = () => {
             </div>
             <div className={styles['input-box']}>
               <input
+                type="tel"
+                placeholder={translations[language].phoneNumber}
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                required
+                style={{ color: colors.grey[100], border: `1px solid ${colors.grey[100]}` }}
+              />
+              <FaPhone className={styles.icon} style={{ color: colors.grey[100] }} />
+            </div>
+            <div className={styles['input-box']}>
+              <input
                 type="password"
                 placeholder={translations[language].password}
                 name="password"
@@ -428,19 +445,27 @@ const LoginRegister: React.FC = () => {
                 <input type="checkbox" /> {translations[language].terms}
               </label>
             </div>
-            <button type="submit" style={{ color: colors.grey[100], border: `1px solid ${colors.grey[100]}` }}>
+            <button type="submit" className={styles['link-button']} >
               {translations[language].register}
             </button>
-            <div className={styles['register-link']}>
-              <p>
-                {translations[language].haveAccount}{' '}
+            <div className={styles['google-link']}>
                 <button 
                   type="button" 
                   className={styles['link-button']} 
-                  onClick={() => setIsRegisterMode(false)}
                 >
-                  {translations[language].login}
+                  <FcGoogle className={styles.google}/>{translations[language].continueWithGoogle}
                 </button>
+            </div>
+            <div className={styles['register-link']}>
+              <p>
+                {translations[language].haveAccount}{' '}
+                <button
+                  type="button" 
+                  className={styles['link--button'] } 
+                  onClick={() => setIsRegisterMode(false)}
+                  >
+                     {translations[language].login}
+                  </button>
               </p>
             </div>
           </form>
