@@ -1,0 +1,2 @@
+.env            # Ignores the .env file in the root
+backend/.env    # Also explicitly ignore .env in the backend folder (if needed)
