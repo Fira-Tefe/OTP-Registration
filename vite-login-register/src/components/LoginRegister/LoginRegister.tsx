@@ -3,12 +3,12 @@ import { FaUser, FaLock, FaEnvelope, FaRegMoon, FaPhone } from 'react-icons/fa';
 import { FcGoogle } from "react-icons/fc";
 import { MdOutlineLanguage } from "react-icons/md";
 import { TiWeatherSunny } from "react-icons/ti";
-import { login, register } from './api'; 
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './LoginRegister.module.css';
 import { tokens } from './theme';
+import { login, register, getGoogleAuthUrl, handleGoogleAuthSuccess } from './api';
 
 // Type definitions
 interface FormData {
@@ -112,6 +112,7 @@ const translations: Translations = {
   }
 };
 
+
 const LanguageDropdown: React.FC<LanguageDropdownProps> = ({ 
   onLanguageChange, 
   isOpen, 
@@ -188,6 +189,30 @@ const LoginRegister: React.FC = () => {
       }
     }
   }, []);
+
+  useEffect(() => {
+    const handleGoogleAuth = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const user = urlParams.get('user');
+  
+      if (token && user) {
+        try {
+          const res = await handleGoogleAuthSuccess(token, user);
+          if (res.success && res.token && res.user) {
+            localStorage.setItem('token', res.token);
+            localStorage.setItem('user', JSON.stringify(res.user));
+            navigate('/admin');
+            toast.success('Google login successful!');
+          }
+        } catch (error) {
+          toast.error('Google authentication failed');
+        }
+      }
+    };
+  
+    handleGoogleAuth();
+  }, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -372,12 +397,13 @@ const LoginRegister: React.FC = () => {
               {translations[language].login}
             </button>
             <div className={styles['google-link']}>
-                <button 
-                  type="button" 
-                  className={styles['link-button']} 
-                >
-                  <FcGoogle className={styles.google}/>{translations[language].continueWithGoogle}
-                </button>
+              <button 
+                type="button" 
+                className={styles['link-button']} 
+                onClick={() => window.location.href = getGoogleAuthUrl()}
+              >
+                <FcGoogle className={styles.google}/>{translations[language].continueWithGoogle}
+              </button>
             </div>
             <div className={styles['register-link']}>
               <p>
@@ -455,12 +481,13 @@ const LoginRegister: React.FC = () => {
               {translations[language].register}
             </button>
             <div className={styles['google-link']}>
-                <button 
-                  type="button" 
-                  className={styles['link-button']} 
-                >
-                  <FcGoogle className={styles.google}/>{translations[language].continueWithGoogle}
-                </button>
+              <button 
+                type="button" 
+                className={styles['link-button']} 
+                onClick={() => window.location.href = getGoogleAuthUrl()}
+              >
+                <FcGoogle className={styles.google}/>{translations[language].continueWithGoogle}
+              </button>
             </div>
             <div className={styles['register-link']}>
               <p>

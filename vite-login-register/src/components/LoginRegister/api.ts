@@ -59,4 +59,24 @@ const login = async (formData: LoginData): Promise<ApiResponse> => {
    }
  };
 
+// Google authentications
+ export const getGoogleAuthUrl = () => {
+  return 'http://localhost:5000/api/auth/google';
+};
+
+export const handleGoogleAuthSuccess = async (token: string, user: any): Promise<ApiResponse> => {
+  try {
+    return {
+      success: true,
+      token,
+      user: JSON.parse(decodeURIComponent(user))
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Error processing Google authentication'
+    };
+  }
+};
+
 export { register, login };
